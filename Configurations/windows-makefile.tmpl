@@ -769,6 +769,10 @@ EOF
               die "Generator type for $src unknown: $gen0\n";
           }
 
+          # The same path as $target, but using backslashes (\) instead of forward slashes (/).
+          my $targetW = $target;
+          $targetW =~ s/\//\\/g;
+
           if (defined($generator)) {
               # If the target is named foo.S in build.info, we want to
               # end up generating foo.s in two steps.
@@ -777,8 +781,8 @@ EOF
 $target: "$gen0" $deps
 	cmd /C "set "ASM=\$(AS)" & $generator \$@.S"
 	\$(CPP) $incs $cppflags $defs \$@.S > \$@.i
-	move /Y \$@.i \$@
-        del /Q \$@.S
+	move /Y $targetW.i $targetW
+	del /Q $targetW.S
 EOF
               }
               # Otherwise....
@@ -790,7 +794,7 @@ EOF
           return <<"EOF";
 $target: "$gen0" $deps
 	\$(CPP) $incs $cppflags $defs "$gen0" > \$@.i
-	move /Y \$@.i \$@
+	move /Y $targetW.i $targetW
 EOF
       } elsif ($gen0 =~ m|^.*\.in$|) {
           #
